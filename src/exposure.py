@@ -50,7 +50,7 @@ def help():
 
 
 def option():
-    """Compute option statistics."""
+    """Compute account exposure for option contract."""
     ask = float(input('What is the ask price of the option? '))
 
     # Total account exposure by a single contract.
