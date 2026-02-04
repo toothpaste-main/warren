@@ -7,6 +7,9 @@ import math
 # rounded when printing.
 SIG_FIGS = 2
 
+# Number of securities per contract.
+CONTRACTS = 100
+
 # Percentage of account lost to halt trading.
 BREAKER = 0.02
 
@@ -31,7 +34,7 @@ goal_day = [discrete(principle, r) for r in GAIN_RATE]
 exposure_risk = [principle * r for r in EXPOSURE_RATE]
 
 # Maximum option ask price for a given exposure.
-buy = [e / 100 for e in exposure_risk]
+buy = [e / CONTRACTS for e in exposure_risk]
 
 # Maximum option bid for a given exposure.
 sell_lower = [discrete(buy[0], r) for r in GAIN_RATE]
@@ -50,14 +53,17 @@ def option():
     """Compute option statistics."""
     ask = float(input('What is the ask price of the option? '))
 
+    # Total account exposure by a single contract.
+    exposure = ((ask * CONTRACTS) / principle)
+
     # Assess option risk by comparing to upper ask limit.
-    if ask > buy[1]:
-        percent_increase = ((ask - buy[1]) / buy[1]) * 100
-        print(f'This ask price exceeds your maximum risk of {round(buy[1], SIG_FIGS)} by {round(percent_increase, SIG_FIGS)}%')
+    if exposure > EXPOSURE_RATE[1]:
+        print(f'Contract exposure of {round(exposure * 100, SIG_FIGS)}% exceeds maximum exposure of {round(EXPOSURE_RATE[1] * 100, SIG_FIGS)}%!')
     else:
         bid = [discrete(ask, r) for r in GAIN_RATE]
         print(f'This option is within your allotted risk.')
-        print(f'Maximum bid: \t{[round(b, SIG_FIGS) for b in bid]}')
+        print(f'Account exposure: \t {round(exposure * 100, SIG_FIGS)}%')
+        print(f'Maximum bid: \t\t{[round(b, SIG_FIGS) for b in bid]}')
 
 
 def rates():
@@ -77,6 +83,10 @@ def rules():
     print(f'Option (sell, upper): \t{[round(s, SIG_FIGS) for s in sell_upper]}')
 
 
+# Display rules initially before entering program loop.
+rules()
+
+# Program loop.
 while True:
     user_input = input('>')
 
