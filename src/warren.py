@@ -21,7 +21,7 @@ GAIN_RATE = [0.01, 0.025]
 discrete = lambda p, r: p + p * r
 
 # Starting account value for the day.
-principle = float(input("What is today's principle ($)? "))
+principle = float(input("What is today's principle? "))
 
 # Goal account value for the day.
 goal_day = [discrete(principle, r) for r in GAIN_RATE]
@@ -30,16 +30,34 @@ goal_day = [discrete(principle, r) for r in GAIN_RATE]
 # be exposed at any point in time.
 exposure_risk = [principle * r for r in EXPOSURE_RATE]
 
+# Maximum option ask price for a given exposure.
 buy = [e / 100 for e in exposure_risk]
 
-# Sell point for a given exposure (based on daily acrewal rate)
+# Maximum option bid for a given exposure.
 sell_lower = [discrete(buy[0], r) for r in GAIN_RATE]
 sell_upper = [discrete(buy[1], r) for r in GAIN_RATE]
+
+def help():
+    """Display available commands."""
+    print('Available commands:')
+    print('exit \t: Exit program.')
+    print('option \t: Get risk assessment for an option.')
+    print('rates \t: Display rates used in calculations.')
+    print('rules \t: Display rules for this trading day.')
 
 
 def option():
     """Compute option statistics."""
-    pass
+    ask = float(input('What is the ask price of the option? '))
+
+    # Assess option risk by comparing to upper ask limit.
+    if ask > buy[1]:
+        percent_increase = ((ask - buy[1]) / buy[1]) * 100
+        print(f'This ask price exceeds your maximum risk of {round(buy[1], SIG_FIGS)} by {round(percent_increase, SIG_FIGS)}%')
+    else:
+        bid = [discrete(ask, r) for r in GAIN_RATE]
+        print(f'This option is within your allotted risk.')
+        print(f'Maximum bid: \t{[round(b, SIG_FIGS) for b in bid]}')
 
 
 def rates():
@@ -63,6 +81,10 @@ while True:
     user_input = input('>')
 
     match user_input:
+        case 'exit':
+            break
+        case 'help':
+            help()
         case 'option':
             option()
         case 'rates':
